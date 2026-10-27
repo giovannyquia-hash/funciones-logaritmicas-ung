@@ -583,7 +583,7 @@ function graphSVG(g, color){
     if (s.type === "fn"){
       const n = 120;
       // la hipérbola se dibuja en dos ramas para no cruzar la asíntota
-      const branches = (s.f === "rat")
+      const branches = (s.f === "rat" || s.f === "log")
         ? [[s.x1, s.h - 0.001], [s.h + 0.001, s.x2]]
         : [[s.x1, s.x2]];
       branches.forEach(br => {
@@ -603,19 +603,27 @@ function graphSVG(g, color){
             y = s.a / (x - s.h) + s.k;
           } else if (s.f === "cubic"){
             y = s.a * Math.pow(x - s.h, 3) + s.k;
+          } else if (s.f === "log"){
+            const arg = Math.max(1e-12, x - s.h);
+            if (s.a === 10){ y = Math.log10(arg) + s.k; }
+            else if (s.a && s.a !== Math.E){ y = (Math.log(arg) / Math.log(s.a)) + s.k; }
+            else { y = Math.log(arg) + s.k; }
           } else {
             y = 0;
           }
+          if (!isFinite(y)) continue;
           pts.push([x, y]);
         }
+        if (pts.length < 2) return;
         const d = pts.map((p, i) => (i ? "L" : "M") + X(p[0]) + " " + Y(p[1])).join(" ");
         parts.push('<path d="' + d + '" fill="none" stroke="' + sc + '" stroke-width="2.6" clip-path="url(#' + clip + ')" stroke-linecap="round"/>');
       });
-      // vértice (parábola, raíz o valor absoluto)
       if (s.f === "quad" || s.f === "sqrt" || s.f === "abs"){
         parts.push(dot(s.h, s.k, false));
       }
-      // asíntotas de la hipérbola
+      if (s.f === "log"){
+        parts.push(dot(s.h + 1, s.k, false));
+      }
       if (s.f === "rat"){
         if (s.h > minX && s.h < maxX){
           parts.push('<line x1="' + X(s.h) + '" y1="' + Y(minY) + '" x2="' + X(s.h) + '" y2="' + Y(maxY) + '" stroke="#9aa3bf" stroke-width="1.4" stroke-dasharray="5 4"/>');
@@ -623,6 +631,9 @@ function graphSVG(g, color){
         if (s.k !== 0 && s.k > minY && s.k < maxY){
           parts.push('<line x1="' + X(minX) + '" y1="' + Y(s.k) + '" x2="' + X(maxX) + '" y2="' + Y(s.k) + '" stroke="#9aa3bf" stroke-width="1.4" stroke-dasharray="5 4"/>');
         }
+      }
+      if (s.f === "log" && s.h > minX && s.h < maxX){
+        parts.push('<line x1="' + X(s.h) + '" y1="' + Y(minY) + '" x2="' + X(s.h) + '" y2="' + Y(maxY) + '" stroke="#9aa3bf" stroke-width="1.4" stroke-dasharray="5 4"/>');
       }
     }
   });
