@@ -626,7 +626,6 @@ function graphSVG(g, color){
       if (s.f === "quad" || s.f === "sqrt" || s.f === "abs"){
         parts.push(dot(s.h, s.k, false));
       }
-      // punto característico de logaritmo (1,0) trasladado
       if (s.f === "log"){
         parts.push(dot(s.h + 1, s.k, false));
       }
@@ -639,7 +638,6 @@ function graphSVG(g, color){
           parts.push('<line x1="' + X(minX) + '" y1="' + Y(s.k) + '" x2="' + X(maxX) + '" y2="' + Y(s.k) + '" stroke="#9aa3bf" stroke-width="1.4" stroke-dasharray="5 4"/>');
         }
       }
-      // asíntota vertical del logaritmo
       if (s.f === "log" && s.h > minX && s.h < maxX){
         parts.push('<line x1="' + X(s.h) + '" y1="' + Y(minY) + '" x2="' + X(s.h) + '" y2="' + Y(maxY) + '" stroke="#9aa3bf" stroke-width="1.4" stroke-dasharray="5 4"/>');
       }
